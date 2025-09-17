@@ -5,3 +5,4 @@ from .berimond import BerimondTab
 from .configuration import ConfigurationTab
 from .scan import ScanTab
 from .discord import DiscordTab
+from .tutorial import TutorialTab

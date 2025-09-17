@@ -15,6 +15,9 @@ class BaronTab(BaseTab, ttk.Frame):
         self.start_index = 1
         self.end_index = 35
 
+        # Boolean that will be changed by the radio buttons
+        self.feather_horses = True  # výchozí hodnota
+
         self.create_widgets()
         self.update_button_text()
 
@@ -55,14 +58,14 @@ class BaronTab(BaseTab, ttk.Frame):
         )
         save_button.pack(pady=5)
 
-        # Rámeček pro uspořádání radio buttonů
+        # Rámeček pro uspořádání radio buttonů (svět + typ koně)
         world_frame = ttk.Frame(self)
-        world_frame.pack(pady=10)
+        world_frame.pack(pady=10, fill="x")
 
         world_label = ttk.Label(world_frame, text="Vybrat svět:")
         world_label.pack(side=tk.LEFT, padx=(0, 10))
 
-        # Proměnná pro ukládání hodnoty vybraného Radiobutton
+        # Proměnná pro ukládání hodnoty vybraného Radiobutton (svět)
         self.world_variable = tk.StringVar(value="green")
 
         # Vytvoření Radiobuttonů pro každý svět s navázaným příkazem
@@ -74,6 +77,40 @@ class BaronTab(BaseTab, ttk.Frame):
                         command=self.world_changed).pack(side=tk.LEFT, padx=5)
         ttk.Radiobutton(world_frame, text="Fire", variable=self.world_variable, value="fire",
                         command=self.world_changed).pack(side=tk.LEFT, padx=5)
+
+        # --- Nové: radiobuttony pro typ koně (mění bool feather_horses) ---
+        # Použijeme BooleanVar pro vazbu; callback zajistí aktualizaci self.feather_horses
+        self.feather_horses_var = tk.BooleanVar(value=self.feather_horses)
+
+        # Rámeček pro typ koně, umístěný vedle world_frame (můžeme přizpůsobit layout)
+        horse_frame = ttk.Frame(self)
+        horse_frame.pack(pady=5, fill="x")
+
+        horse_label = ttk.Label(horse_frame, text="Typ koně:")
+        horse_label.pack(side=tk.LEFT, padx=(0, 10))
+
+        # "Gold kone" nastaví feather_horses = False (např. gold = bez pérka)
+        ttk.Radiobutton(horse_frame, text="Gold koně", variable=self.feather_horses_var, value=False,
+                        command=self._on_feather_horses_changed).pack(side=tk.LEFT, padx=5)
+        # "Pírko kone" nastaví feather_horses = True
+        ttk.Radiobutton(horse_frame, text="Pírko koně", variable=self.feather_horses_var, value=True,
+                        command=self._on_feather_horses_changed).pack(side=tk.LEFT, padx=5)
+
+    def _on_feather_horses_changed(self):
+        """Callback při změně typu koně - aktualizuje self.feather_horses."""
+        self.feather_horses = bool(self.feather_horses_var.get())
+
+        # Vybereme text podle hodnoty
+        horse_type = "Pírko" if self.feather_horses else "Gold"
+
+        # Zalogujeme změnu
+        try:
+            self.log_message(
+                status="info",
+                message=f"Typ koně byl změněn na: {horse_type}"
+            )
+        except Exception:
+            pass
 
     def world_changed(self):
         """Zaznamená změnu vybraného světa do GUI logu."""
@@ -146,14 +183,18 @@ class BaronTab(BaseTab, ttk.Frame):
                 # Ujistíme se, že hodnoty nejsou None před voláním
                 if target_x is not None and target_y is not None:
                     note = f"target: {x}"
-                    self.SendAttackFirstWaveAuto(target_x=target_x, target_y=target_y, feather_horse=True, note=note)
+                    # Použijeme self.feather_horses při volání (pokud funkce parametr očekává)
+                    self.SendAttackFirstWaveAuto(target_x=target_x, target_y=target_y, feather_horse=self.feather_horses, note=note)
                 else:
                     self.log_message(
                         status="error",
                         message=f"Chyba: Nebyly nalezeny souřadnice pro cíl '{current_target_key}'."
                     )
-            # The 'return' here caused the loop to exit after one full pass.
-            # I have removed it to allow the 'while self.is_running' loop to continue.
+            self.is_running = False
+            self.log_message(
+                status="INFO",
+                message="Posílání session baronů úspěšně dokončeno",
+            )
 
     def update_button_text(self):
         """Aktualizuje text tlačítka podle stavu smyčky."""
@@ -161,6 +202,3 @@ class BaronTab(BaseTab, ttk.Frame):
             self.control_button.config(text="Zastavit (F1)")
         else:
             self.control_button.config(text="Spustit (F1)")
-
-
-

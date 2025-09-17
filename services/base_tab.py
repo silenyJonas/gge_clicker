@@ -17,12 +17,21 @@ class BaseTab(ttk.Frame):
             parent.bind("<F1>", self.toggle_loop)
 
     def SendAttackFirstWaveAuto(self, target_x, target_y, kingdom=None, feather_horse=None, note=None):
-        pyautogui.press("Tab")
+        #pyautogui.press("Tab")
+        pyautogui.click(
+            self.config_reader.get_value("actions_click_patter.send_attack_first_wave_auto.click_select_cords.x"),
+            self.config_reader.get_value("actions_click_patter.send_attack_first_wave_auto.click_select_cords.y")
+        )
+        pyautogui.click(
+            self.config_reader.get_value("actions_click_patter.send_attack_first_wave_auto.click_select_cords.x"),
+            self.config_reader.get_value("actions_click_patter.send_attack_first_wave_auto.click_select_cords.y")
+        )
+        time.sleep(self.click_delay_offset)
         pyautogui.typewrite(str(target_x))
         pyautogui.press("Tab")
         pyautogui.typewrite(str(target_y))
         pyautogui.press("Enter")
-
+        time.sleep(self.click_delay_offset)
         pyautogui.click(
             self.config_reader.get_value("actions_click_patter.send_attack_first_wave_auto.click_1.x"),
             self.config_reader.get_value("actions_click_patter.send_attack_first_wave_auto.click_1.y")

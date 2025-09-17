@@ -6,7 +6,7 @@ import threading
 import datetime  # Importujeme modul datetime
 
 # Import všech tříd záložek z balíčku 'tabs'
-from tabs import BaronTab, BerimondTab, ConfigurationTab, DiscordTab, FortressTab, NomadTab, ScanTab
+from tabs import BaronTab, BerimondTab, ConfigurationTab, DiscordTab, FortressTab, NomadTab, ScanTab, TutorialTab
 from services.config_manager import ConfigManager
 from services.shared_data import message_queue, LogMessage
 
@@ -48,6 +48,7 @@ class App(tk.Tk):
         self.scanTab = ScanTab(notebook)
         self.configurationTab = ConfigurationTab(notebook, self.config_manager)
         self.discordTab = DiscordTab(notebook)
+        self.tutorialTab = TutorialTab(notebook)
 
         notebook.add(self.fortessTab, text="Pevnosti")
         notebook.add(self.baronTab, text="Baroni")
@@ -56,6 +57,7 @@ class App(tk.Tk):
         notebook.add(self.scanTab, text="Scan mapy")
         notebook.add(self.configurationTab, text="Konfigurace")
         notebook.add(self.discordTab, text="Discord")
+        notebook.add(self.tutorialTab, text="Návody")
 
     def process_messages(self):
         """Pravidelně kontroluje frontu zpráv a vypisuje je do textového pole."""
