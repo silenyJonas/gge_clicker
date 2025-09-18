@@ -14,8 +14,8 @@ class TutorialTab(BaseTab, ttk.Frame):
         # Initialize start_index and end_index with default values
         self.nodes = [
             "PISEK BARONI - [samu;zebriky;pirkokone] tak jet indexy 1-135 [34minut], 136-150 [3minuty]",
-            "PISEK BARONI - [samu;zebriky;zlatokone] tak jet indexy 1-85, 86-120, 121-150",
-            "OHEN BARONI - [samu;zebriky;pirkokone] tak jet indexy 1-85, 86-120, 121-150",
+            "PISEK BARONI - [samu;zebriky;zlatokone]xxxx ",
+            "OHEN BARONI - [samu;zebriky;pirkokone] tak jet indexy 1-127 [32minut], 128-150 [2miunty]",
             "OHEN BARONI - [samu;zebriky;pirkokone] tak jet indexy 1-85, 86-120, 121-150",
 
         ]
