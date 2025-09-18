@@ -5,16 +5,16 @@
       "y": 1111
     },
     "winter": {
-      "x": 0,
-      "y": 0
+      "x": 762,
+      "y": 717
     },
     "sand": {
-      "x": 0,
-      "y": 0
+      "x": 805,
+      "y": 824
     },
     "fire": {
-      "x": 0,
-      "y": 0
+      "x": 656,
+      "y": 781
     },
      "water": {
       "x": 0,
@@ -32,6 +32,12 @@
       "default_time_delay_offset": 0,
       "default_click_delay": 1,
       "default_time_before_run": 5
+    },
+    "scan_screen_size": {
+      "x_start": 0,
+      "x_end": 0,
+      "y_start": 0,
+      "y_end": 0
     }
   },
   "entity_list": {
