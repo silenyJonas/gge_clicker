@@ -26,6 +26,7 @@
       "width": 1920,
       "height": 1080
     },
+
     "offsets": {
       "default_mouse_x_offset": 5,
       "default_mouse_y_offset": 5,
@@ -34,10 +35,10 @@
       "default_time_before_run": 5
     },
     "scan_screen_size": {
-      "x_start": 0,
-      "x_end": 0,
-      "y_start": 0,
-      "y_end": 0
+      "x": 945,
+      "y": 503,
+      "width": 220,
+      "height": 23
     }
   },
   "entity_list": {
@@ -1642,6 +1643,10 @@
       "info_dialog": {
         "x": 955,
         "y": 676
+      },
+      "close_ali": {
+        "x": 1200,
+        "y": 757
       }
     }
 }

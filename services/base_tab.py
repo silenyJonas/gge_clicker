@@ -8,15 +8,25 @@ from .config_reader import ConfigReader
 from .shared_data import message_queue, LogMessage
 import pyautogui
 import os
+from .db_writer import DbWriter
+from PIL import Image
+import pytesseract
+from PIL import Image
+import os
+import easyocr
+import re
+from datetime import datetime, timedelta
+import keyboard
 
 class BaseTab(ttk.Frame):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.config_reader = ConfigReader(filepath="configuration.json")
         self.is_running = False
-
+        self.db_writer = DbWriter()
         self.click_delay_offset = self.config_reader.get_value("settings.offsets.default_click_delay")
-
+        self.reader = easyocr.Reader(['en'], gpu=True)
+        self.stop_event = threading.Event()
         if parent:
             parent.bind("<F1>", self.toggle_loop)
 
@@ -30,13 +40,15 @@ class BaseTab(ttk.Frame):
         """Provede scan pevností z JSON a hlásí postup do GUI logu."""
 
         def _scan_loop():
-            # odpočítávání před spuštěním (informativní)
             countdown = self.config_reader.get_value("settings.offsets.default_time_before_run")
             for x in range(countdown, 0, -1):
+                if self.stop_event.is_set():
+                    self.log_message(status="info", message="ScanFort zastaven uživatelem během odpočtu")
+                    return
                 self.log_message(status="info", message=f"Spuštění ScanFort za: {x}")
                 time.sleep(1)
 
-            # zvolené souřadnice hradu
+            # souřadnice hradu
             castle_x, castle_y = 0, 0
             if json_name == "winter":
                 castle_x = self.config_reader.get_value("main_castle_cords.winter.x")
@@ -44,28 +56,27 @@ class BaseTab(ttk.Frame):
             elif json_name == "sand":
                 castle_x = self.config_reader.get_value("main_castle_cords.sand.x")
                 castle_y = self.config_reader.get_value("main_castle_cords.sand.y")
-            else:  # fire
+            else:
                 castle_x = self.config_reader.get_value("main_castle_cords.fire.x")
                 castle_y = self.config_reader.get_value("main_castle_cords.fire.y")
 
-            # cesta k JSON souboru
-            base_dir = os.path.join(
-                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                "fortress_data_storage"
-            )
+            # JSON pevnosti
+            base_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "fortress_data_storage")
             json_path = os.path.join(base_dir, f"{json_name}.json")
-
             with open(json_path, "r", encoding="utf-8") as f:
                 fort_data = json.load(f)
 
             forts_sorted = sorted(fort_data.items(), key=lambda kv: int(kv[0].split("_")[1]))
             counter = 1
 
-            # Pro každou pevnost
             for fort_key, target in forts_sorted:
+                if self.stop_event.is_set():
+                    self.log_message(status="info", message="ScanFort zastaven uživatelem")
+                    return
+                private_click_offset_01 = 0.1
+                private_click_offset_02 = 0.2
+                private_click_offset_05 = 0.2
                 target_x, target_y = target["x"], target["y"]
-
-                # kontrola vzdálenosti
                 distance = self.GetDistance(castle_x, castle_y, target_x, target_y)
                 if distance > scan_distance:
                     self.log_message(
@@ -75,78 +86,111 @@ class BaseTab(ttk.Frame):
                     counter += 1
                     continue
 
-                # vykonání akce pevnosti (pyautogui)
                 try:
-                    # pyautogui.press("Tab")
-                    pyautogui.click(
-                        self.config_reader.get_value(
-                            "actions_click_patter.send_attack_first_wave_auto.click_select_cords.x"),
-                        self.config_reader.get_value(
-                            "actions_click_patter.send_attack_first_wave_auto.click_select_cords.y")
-                    )
-                    pyautogui.click(
-                        self.config_reader.get_value(
-                            "actions_click_patter.send_attack_first_wave_auto.click_select_cords.x"),
-                        self.config_reader.get_value(
-                            "actions_click_patter.send_attack_first_wave_auto.click_select_cords.y")
-                    )
-                    time.sleep(self.click_delay_offset)
+
+
+                    pyautogui.click(self.config_reader.get_value("actions_click_patter.send_attack_first_wave_auto.click_select_cords.x"),
+                                    self.config_reader.get_value("actions_click_patter.send_attack_first_wave_auto.click_select_cords.y"))
+                    pyautogui.click(self.config_reader.get_value("actions_click_patter.send_attack_first_wave_auto.click_select_cords.x"),
+                                    self.config_reader.get_value("actions_click_patter.send_attack_first_wave_auto.click_select_cords.y"))
+                    time.sleep(private_click_offset_01)
                     pyautogui.typewrite(str(target_x))
                     pyautogui.press("Tab")
                     pyautogui.typewrite(str(target_y))
                     pyautogui.press("Enter")
-                    time.sleep(self.click_delay_offset)
-                    pyautogui.moveTo(
-                        self.config_reader.get_value("actions_click_patter.send_attack_first_wave_auto.click_1.x"),
-                        self.config_reader.get_value("actions_click_patter.send_attack_first_wave_auto.click_1.y")
-                    )
-                    time.sleep(self.click_delay_offset)
-                    pyautogui.moveTo(
-                        self.config_reader.get_value("actions_click_patter.send_attack_first_wave_auto.click_1.x" )+ 5,
-                        self.config_reader.get_value("actions_click_patter.send_attack_first_wave_auto.click_1.y" )+ 5
-                    )
-                    time.sleep(self.click_delay_offset)
-                    pyautogui.moveTo(
-                        self.config_reader.get_value("actions_click_patter.send_attack_first_wave_auto.click_1.x"),
-                        self.config_reader.get_value("actions_click_patter.send_attack_first_wave_auto.click_1.y")
-                    )
-                    pyautogui.click(
-                        self.config_reader.get_value("actions_click_patter.send_attack_first_wave_auto.click_1.x"),
-                        self.config_reader.get_value("actions_click_patter.send_attack_first_wave_auto.click_1.y")
-                    )
-                    time.sleep(self.click_delay_offset)
-                    pyautogui.moveTo(
-                        self.config_reader.get_value("actions_click_patter.send_attack_first_wave_auto.click_2.x"),
-                        self.config_reader.get_value("actions_click_patter.send_attack_first_wave_auto.click_2.y")
-                    )
+                    time.sleep(private_click_offset_05)
+                    pyautogui.moveTo(self.config_reader.get_value("actions_click_patter.send_attack_first_wave_auto.click_1.x"),
+                                     self.config_reader.get_value("actions_click_patter.send_attack_first_wave_auto.click_1.y"))
+                    time.sleep(private_click_offset_01)
+                    pyautogui.click(self.config_reader.get_value("actions_click_patter.send_attack_first_wave_auto.click_1.x") + 5,
+                                    self.config_reader.get_value("actions_click_patter.send_attack_first_wave_auto.click_1.y") + 5)
+                    time.sleep(private_click_offset_01)
+                    pyautogui.moveTo(self.config_reader.get_value("actions_click_patter.send_attack_first_wave_auto.click_2.x"),
+                                     self.config_reader.get_value("actions_click_patter.send_attack_first_wave_auto.click_2.y"))
+                    time.sleep(0.1)
+
+                    # OCR a zápis paralelně
+                    cords = f"{target_x}:{target_y}"
+                    kingdom = "ZIM" if json_name=="winter" else "PSK" if json_name=="sand" else "OHN"
+                    threading.Thread(target=self.AnalyzeScreenFort, kwargs={"kingdom": kingdom, "cords": cords, "stop_event": self.stop_event}, daemon=True).start()
 
                 except Exception as e:
                     self.log_message(status="error", message=f"Chyba při scanu [{target_x}:{target_y}]: {e}")
 
-                self.log_message(
-                    status="ok",
-                    message=f"Scan dokončen: [{target_x}:{target_y}] | Note: {counter}/{len(forts_sorted)}"
-                )
+                self.log_message(status="ok", message=f"Scan dokončen: [{target_x}:{target_y}] | Note: {counter}/{len(forts_sorted)}")
                 counter += 1
-                time.sleep(self.click_delay_offset)
+                time.sleep(private_click_offset_02)
 
             self.log_message(status="info", message="ScanFort dokončen.")
 
-        # spustíme ve vlákně, GUI zůstane responzivní
-        thread = threading.Thread(target=_scan_loop)
-        thread.daemon = True
+        # vlákno pro sken
+        thread = threading.Thread(target=_scan_loop, daemon=True)
         thread.start()
 
-    @staticmethod
-    def WriteFort(text: str):
-        # sestavení cesty k db.txt relativně k umístění tohoto souboru
+        # vlákno pro kontrolu klávesy "S"
+        def _stop_listener():
+            keyboard.wait("s")  # čeká, až uživatel zmáčkne "s"
+            self.stop_event.set()
+            self.log_message(status="warn", message="Uživatel zastavil ScanFort stiskem klávesy 'S'")
+
+        threading.Thread(target=_stop_listener, daemon=True).start()
+
+    def AnalyzeScreenFort(self, kingdom="", cords="", stop_event=None):
+        # okamžitá kontrola, zda bylo vlákno zastaveno
+        if stop_event is not None and stop_event.is_set():
+            return
+
+        x = int(self.config_reader.get_value("settings.scan_screen_size.x"))
+        y = int(self.config_reader.get_value("settings.scan_screen_size.y"))
+        width = int(self.config_reader.get_value("settings.scan_screen_size.width"))
+        height = int(self.config_reader.get_value("settings.scan_screen_size.height"))
+
+        # screenshot
+        screenshot = pyautogui.screenshot(region=(x, y, width, height))
+
+        # cesta k uložení
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        db_path = os.path.join(base_dir, "fortress_data_storage", "db.txt")
+        image_path = os.path.join(base_dir, "images", "scan_cooldown_screen.png")
+        os.makedirs(os.path.dirname(image_path), exist_ok=True)
+        screenshot.save(image_path)
 
-        # připsání textu na konec souboru
-        with open(db_path, "a", encoding="utf-8") as f:
-            f.write(text + "\n")
+        # OCR
+        result = self.reader.readtext(image_path, detail=0)
+        extracted_text = " ".join(result).strip()
 
+        if extracted_text:
+            # převede text na budoucí čas
+            extracted_text = self.calculate_future_time(extracted_text)
+            # spojí informace do formátu: kingdom;cords;čas
+            extracted_text = f"{kingdom};{cords};{extracted_text}"
+            self.db_writer.WriteToDb(extracted_text)
+            self.log_message(status="ok", message=f"Načtený text: {extracted_text}")
+        else:
+            self.log_message(status="warn", message="OCR nenašlo žádný text")
+
+    def calculate_future_time(self, text: str):
+        # extrahujeme čísla po "Lze napadnout za:"
+        match = re.search(r"Lze napadnout za:\s*([\d:.]+)", text)
+        if not match:
+            return None
+
+        time_str = match.group(1).replace(".", ":")  # tečky převedeme na dvojtečky
+        parts = list(map(int, time_str.split(":")))
+
+        if len(parts) == 3:
+            h, m, s = parts
+        elif len(parts) == 2:
+            h, m, s = 0, parts[0], parts[1]
+        elif len(parts) == 1:
+            h, m, s = 0, 0, parts[0]
+        else:
+            return None
+
+        delta = timedelta(hours=h, minutes=m, seconds=s)
+        future_time = datetime.now() + delta
+
+        # Vrátíme celé datum a čas: YYYY-MM-DD H:M:S
+        return future_time.strftime("%Y-%m-%d %H:%M:%S")
 
 
     def SendAttackFirstWaveAuto(self, target_x, target_y, kingdom=None, feather_horse=None, note=None):
@@ -186,21 +230,36 @@ class BaseTab(ttk.Frame):
         )
 
         #close windows
-        time.sleep(self.click_delay_offset)
+        time.sleep(0.1)
         pyautogui.click(
             self.config_reader.get_value("close_all_windows.prime_time.x"),
             self.config_reader.get_value("close_all_windows.prime_time.y")
         )
 
-        time.sleep(self.click_delay_offset)
+        time.sleep(0.1)
         pyautogui.click(
             self.config_reader.get_value("close_all_windows.map_found.x"),
             self.config_reader.get_value("close_all_windows.map_found.y")
         )
-        time.sleep(self.click_delay_offset)
+        time.sleep(0.1)
         pyautogui.click(
             self.config_reader.get_value("close_all_windows.free_outpost.x"),
             self.config_reader.get_value("close_all_windows.free_outpost.y")
+        )
+        time.sleep(0.1)
+        pyautogui.click(
+            self.config_reader.get_value("close_all_windows.triple_action.x"),
+            self.config_reader.get_value("close_all_windows.triple_action.y")
+        )
+        time.sleep(0.1)
+        pyautogui.click(
+            self.config_reader.get_value("close_all_windows.info_dialog.x"),
+            self.config_reader.get_value("close_all_windows.info_dialog.y")
+        )
+        time.sleep(0.1)
+        pyautogui.click(
+            self.config_reader.get_value("close_all_windows.close_ali.x"),
+            self.config_reader.get_value("close_all_windows.close_ali.y")
         )
         #close windows end
         time.sleep(self.click_delay_offset)
