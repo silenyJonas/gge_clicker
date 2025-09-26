@@ -26,12 +26,11 @@
       "width": 1920,
       "height": 1080
     },
-
     "offsets": {
       "default_mouse_x_offset": 5,
       "default_mouse_y_offset": 5,
       "default_time_delay_offset": 0,
-      "default_click_delay": 1,
+      "default_click_delay": 0.3,
       "default_time_before_run": 5
     },
     "scan_screen_size": {
@@ -39,6 +38,20 @@
       "y": 503,
       "width": 220,
       "height": 23
+    },
+    "castle_list_cords" : {
+      "base_x" : 1841,
+      "base_y" : 1013,
+      "castle_y_1" : 993,
+      "castle_y_2" : 972,
+      "castle_y_3" : 951,
+      "castle_y_4" : 929,
+      "castle_y_5" : 910,
+      "castle_y_6" : 0,
+      "castle_y_7" : 0,
+      "castle_y_8" : 0,
+      "castle_y_9" : 0,
+      "castle_y_10" : 0
     }
   },
   "entity_list": {
@@ -1613,7 +1626,7 @@
           "x": 1400,
           "y": 911
         },
-         "click_6": {
+        "click_6": {
           "x": 1085,
           "y": 750
         }
@@ -1621,6 +1634,156 @@
       },
       "send_attack_first_wave_auto_rest_loot": {
 
+      },
+      "select_attack_code" : {
+        "base_click" : {
+          "x": 1400,
+          "y": 756
+        },
+        "code_1" : {
+          "x": 1400,
+          "y": 700
+        },
+        "code_2" : {
+          "x": 1400,
+          "y": 670
+        },
+        "code_3" : {
+          "x": 1400,
+          "y": 640
+        },
+        "code_4" : {
+          "x": 1400,
+          "y": 610
+        },
+        "code_5" : {
+          "x": 1400,
+          "y": 580
+        },
+        "code_6" : {
+          "x": 1400,
+          "y": 550
+        },
+        "code_7" : {
+          "x": 1400,
+          "y": 520
+        },
+        "code_8" : {
+          "x": 1400,
+          "y": 490
+        },
+        "code_9" : {
+          "x": 1400,
+          "y": 460
+        },
+        "code_10" : {
+          "x": 1400,
+          "y": 430
+        },
+        "code_11" : {
+          "x": 1400,
+          "y": 400
+        },
+        "code_12" : {
+          "x": 1400,
+          "y": 370
+        },
+        "code_13" : {
+          "x": 1400,
+          "y": 340
+        }
+      },
+      "refill_berimond": {
+        "click_1": {
+          "x": 250,
+          "y": 1050
+        },
+        "click_2": {
+          "x": 830,
+          "y": 720
+        },
+        "click_3": {
+          "x": 1032,
+          "y": 550
+        },
+        "click_4": {
+          "x": 1080,
+          "y": 607
+        },
+        "click_5": {
+          "x": 1200,
+          "y": 766
+        },
+        "click_6": {
+          "x": 870,
+          "y": 760
+        },
+        "click_7": {
+          "x": 1111,
+          "y": 550
+        },
+        "click_8": {
+          "x": 1234,
+          "y": 270
+        },
+
+        "click_9": {
+          "x": 1233,
+          "y": 271
+        },
+        "click_10": {
+          "x": 1326,
+          "y": 262
+        },
+        "troops_offsets": {
+          "offset_troop_1": {
+            "x": 750,
+            "y": 667
+          },
+          "offset_troop_2": {
+            "x": 800,
+            "y": 667
+          },
+          "offset_troop_3": {
+            "x": 860,
+            "y": 667
+          },
+          "offset_troop_4": {
+            "x": 910,
+            "y": 667
+          },
+          "offset_troop_5": {
+            "x": 967,
+            "y": 667
+          },
+          "offset_troop_6": {
+            "x": 1023,
+            "y": 667
+          },
+          "offset_troop_7": {
+            "x": 1072,
+            "y": 667
+          }
+
+        }
+      },
+     "berimond_find_target_right_down": {
+       "x": 1684,
+       "y": 1052
+     },
+     "berimond_no_troop_army_1": {
+       "x": 1100,
+       "y": 670
+     },
+     "berimond_no_troop_army_2": {
+       "x": 1567,
+       "y": 179
+     }
+    },
+    "buy_speed_bonus" : {
+      "click_1" : {
+        "x" : 0,
+        "y" : 0
       }
     },
     "close_all_windows": {

@@ -25,7 +25,7 @@ class BaronTab(BaseTab, ttk.Frame):
         """Vytváří widgety pro tuto záložku."""
         self.control_button = ttk.Button(
             self,
-            text="Spustit (F1)",
+            text="Spustit",
             command=self.toggle_loop
         )
         self.control_button.pack(pady=10)

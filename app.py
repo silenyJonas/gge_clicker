@@ -52,7 +52,7 @@ class App(tk.Tk):
 
         notebook.add(self.fortessTab, text="Pevnosti")
         notebook.add(self.baronTab, text="Baroni")
-        notebook.add(self.nomadTab, text="Nomádi")
+        notebook.add(self.nomadTab, text="Nomádi/Samu")
         notebook.add(self.berimondTab, text="Berimond")
         notebook.add(self.scanTab, text="Scan mapy")
         notebook.add(self.configurationTab, text="Konfigurace")
@@ -65,7 +65,8 @@ class App(tk.Tk):
             log_object = message_queue.get()
 
             # Formátujeme výstup
-            formatted_time = datetime.datetime.fromtimestamp(log_object.time).strftime("%H:%M:%S")
+            formatted_time = datetime.datetime.fromtimestamp(log_object.time).strftime("%H:%M:%S.%f")[:-3]
+
             formatted_message = f"[{formatted_time}] [{log_object.status.upper()}] <{log_object.module}> {log_object.message}"
 
             self.log_text.config(state="normal")
